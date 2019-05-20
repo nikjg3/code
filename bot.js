@@ -74,7 +74,6 @@ function startGame(arguments, receivedMessage)
 {
 	players = que; //Moves the que to the game
 }
-
 //Processes commands by sepearting
 function processCommand(receivedMessage) {
 	let fullCommand = receivedMessage.content.substr(1)
