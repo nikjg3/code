@@ -15,7 +15,6 @@ var timerId;
 var gameRunning = false;
 
 
-
 // Finds messages that start with the prefix to be excuted as commands (see function processCommand)
 client.on('message', (receivedMessage) => {
     if (receivedMessage.author == client.user) {
