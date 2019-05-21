@@ -6,8 +6,14 @@ const { prefix, token } = require('./config.json');
 //Created variables
 var que = []; // Stores players waiting in que
 var players = [];// Stores players in the game
+var mafia = [];
+var innocents = [];
 var mainChannel;
 var generalChannel = "575496493360873500"
+var timeLeft = 10;
+var timerId;
+var gameRunning = false;
+
 
 
 // Finds messages that start with the prefix to be excuted as commands (see function processCommand)
@@ -30,8 +36,12 @@ client.on('ready', () => {
 function listPlayers(arguments, receivedMessage)
 {
 	if (mainChannel != null) {
+		if (!que.length == 0){
 			mainChannel.send("Players currently in que")
 			mainChannel.send(que)
+		}
+		else
+			mainChannel.send("There are currently no players in the que")
 	}
 	else {
 		receivedMessage.channel.send("Please use `" + prefix + "setup` to set a channel");
@@ -43,8 +53,13 @@ function listPlayers(arguments, receivedMessage)
 function joinGame(arguments, receivedMessage)
 {
 	if (mainChannel != null){
-		mainChannel.send(receivedMessage.member.user + " has joined the game");
-		que.push(receivedMessage.member.user) 
+		if (!que.includes(receivedMessage.member.user)) {
+			mainChannel.send(receivedMessage.member.user + " has joined the game");
+			que.push(receivedMessage.member.user) 
+		}
+		else{
+			mainChannel.send("You are already in the que");
+		}
 	}	
 	else {
 		receivedMessage.channel.send("Please use `" + prefix + "setup` to set a channel");
@@ -62,18 +77,84 @@ function setup(arguments, receivedMessage)
 function help(arguments, receivedMessage)
 {
 	if (mainChannel != null) {
-		mainChannel.send("Commands: " + prefix + "help " + prefix + "join " + prefix + "setup ");
+		mainChannel.send("Commands: `" + prefix + "help ` `" + prefix + "join ` `" + prefix + "setup `");
 	}
 	else {
 		receivedMessage.channel.send("Please use `" + prefix + "setup` to set a channel");
 	}
 }
 
+//Starts the countdown till game starts
+function startCountdown(arguments, receivedMessage)
+{
+	if (mainChannel != null) {
+		//Checks to see if there is a game running
+		if (gameRunning == false){
+			if (que.length <= 1)
+			{
+				mainChannel.send("There needs to be at least 2 players to start the game");
+			}
+			else if (!que.length == 0){
+				gameRunning = true
+				players = que; //Moves the que to the game
+				timerId = setInterval(countdown, 1000); //Creates timer
+			}
+			else{
+			mainChannel.send("There are currently no players in the que");
+			}
+		}
+		else{
+			mainChannel.send("There is already a game running in this server");
+		}
+	}
+	else {
+		receivedMessage.channel.send("Please use `" + prefix + "setup` to set a channel");
+	}
+}
+
+//Runs a simple countdown till the game starts
+ function countdown() {
+      if (timeLeft == 0) {
+		clearTimeout(timerId);
+        startGame();
+      } 
+	  else if (timeLeft == 30){
+		mainChannel.send("The game will start in " + timeLeft + " seconds");
+		timeLeft--;
+	  }
+	  else if (timeLeft == 20){
+		mainChannel.send("The game will start in " + timeLeft + " seconds");
+		timeLeft--;
+	  }
+	  else if (timeLeft == 10){
+		mainChannel.send("The game will start in " + timeLeft + " seconds");
+		timeLeft--;
+	  }
+	  else if (timeLeft == 5){
+		mainChannel.send("The game will start in " + timeLeft + " seconds");
+		timeLeft--;
+	  }
+	  else {
+        timeLeft--;
+      }
+ }
+ 
 //Starts the game
 function startGame(arguments, receivedMessage)
 {
-	players = que; //Moves the que to the game
+	mafia[0] = players[Math.floor(Math.random()*players.length)];
+	mafia[0].send("You are a mafioso", {files: ["https://vignette.wikia.nocookie.net/town-of-salem/images/e/e3/Mafioso_Skin.png/revision/latest?cb=20181221193552.png"]})
+	players.forEach(function(element) {
+		if (element != mafia[0])
+		{
+		innocents.push(element) 
+		innocents.forEach(function(element) {
+				element.send("You are a innocent", {files: ["https://hypixel.net/proxy/BcmjTMrMwQRqWG5vIx7S07FfcSvBRqB%2BawyKznN%2FZQtlUAwe5V%2FM9LJ%2F1HDQnNDDbxulL%2FNE%2BYUuDww%2Bs2oM0XWM7CPaT1MEkPZtsFwlYatILR6ZtlyCZRCeIHbEis1yPX2Ymv7nieVFtsvHqDCm/image.png"]})
+			});
+		}
+	});
 }
+
 //Processes commands by sepearting
 function processCommand(receivedMessage) {
 	let fullCommand = receivedMessage.content.substr(1)
@@ -96,8 +177,11 @@ function processCommand(receivedMessage) {
 	else if (primaryCommand == "players") {
         listPlayers(arguments, receivedMessage)
 	}
+	else if (primaryCommand == "start") {
+        startCountdown(arguments, receivedMessage)
+	}
 	else {
-        receivedMessage.channel.send("I don't understand the command. Use please use " + prefix + "help")
+        receivedMessage.channel.send("I don't understand the command. Use please use `" + prefix + "help`")
     }
 }
 
