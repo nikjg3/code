@@ -4,7 +4,7 @@ const fs = require('fs');
 
 var nigger = ["nig","nigger","niger","nigg"];
 
-var nigger2 = /(?:^|\W)nig(?:$|\W)|(?:^|\W)nigger(?:$|\W);
+var nigger2 = /(?:^|\W)nig(?:$|\W)|(?:^|\W)nigger(?:$|\W)/gi;
 
 const { prefix, token } = require('./config.json');
 // create a new Discord client
@@ -17,21 +17,25 @@ client.once('ready', () => {
 });
 client.on('message', message => {
 const nigcount = require('./nig.json'); 
-const ID = message.author.id;
+const ID = message.author.username;
 console.log(nigcount[ID]);
+if(message.author.username != "NigBot"){
 if(nigcount[ID] == null)
 {
 	nigcount[ID] = 0;
 	fs.writeFileSync('./nig.json', JSON.stringify(nigcount));
 }
-for (var i = 0; i < nigger.length; i++) {
   if (message.content.match(nigger2)) {
 	nigcount[ID] += 1;
 	fs.writeFileSync('./nig.json', JSON.stringify(nigcount));
     message.channel.send(message.author.username + ' has been a naughty boy ' + nigcount[ID] + " times!");
 	message.pin({ reason: 'nigger' })
-    break;
   }
+if (message.content =="!n") {
+	message.channel.send("Nig Leaderboard");
+	message.channel.send("---------------");
+	message.channel.send(JSON.stringify(nigcount,null,1).replace(/[{},"]/g, ""));
+}
 }
 });
 
