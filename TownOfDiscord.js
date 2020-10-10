@@ -4,7 +4,7 @@ const fs = require('fs');
 
 var nigger = ["nig","nigger","niger","nigg"];
 
-var nigger2 = /(?:^|\W)nig(?:$|\W)|(?:^|\W)nigger(?:$|\W)/gi;
+var nigger2 = /(\b(n|i){1,32}((g{2,32}){1,32}|[gq]{2,32})[ea3r]{1,32}|(nig\s))/gi;
 
 const { prefix, token } = require('./config.json');
 // create a new Discord client
@@ -32,9 +32,7 @@ if(nigcount[ID] == null)
 	message.pin({ reason: 'nigger' })
   }
 if (message.content =="!n") {
-	message.channel.send("Nig Leaderboard");
-	message.channel.send("---------------");
-	message.channel.send(JSON.stringify(nigcount,null,1).replace(/[{},"]/g, ""));
+	message.channel.send("Nig Leaderboard\n" + "---------------\n" + JSON.stringify(nigcount,null,1).replace(/[{},"]/g, ""));
 }
 }
 });
